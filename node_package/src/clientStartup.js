@@ -109,7 +109,7 @@ function unmount(el) {
   ReactDOM.unmountComponentAtNode(domNode);
 }
 
-function reactOnRailsPageUnloaded() {
+export function reactOnRailsPageUnloaded() {
   debugTurbolinks('reactOnRailsPageUnloaded');
   forEachComponent(unmount);
 }

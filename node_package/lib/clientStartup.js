@@ -9,6 +9,7 @@ var _stringify = require('babel-runtime/core-js/json/stringify');
 var _stringify2 = _interopRequireDefault(_stringify);
 
 exports.reactOnRailsPageLoaded = reactOnRailsPageLoaded;
+exports.reactOnRailsPageUnloaded = reactOnRailsPageUnloaded;
 exports.clientStartup = clientStartup;
 
 var _reactDom = require('react-dom');
