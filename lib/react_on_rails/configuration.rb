@@ -7,35 +7,48 @@ module ReactOnRails
   DEFAULT_GENERATED_ASSETS_DIR = File.join(%w(app assets webpack)).freeze
 
   def self.setup_config_values
-    if @configuration.webpack_generated_files.empty?
-      files = ["webpack-bundle.js"]
-      if @configuration.server_bundle_js_file.present?
-        files << @configuration.server_bundle_js_file
-      end
-      @configuration.webpack_generated_files = files
-    end
+    ensure_webpack_generated_files_exists
+    configure_generated_assets_dirs_deprecation
+    ensure_generated_assets_dir_present
+    ensure_server_bundle_js_file_has_no_path
+  end
 
-    if @configuration.generated_assets_dirs.present?
-      puts "[DEPRECATION] ReactOnRails: Use config.generated_assets_dir rather than "\
+  def self.ensure_generated_assets_dir_present
+    return unless @configuration.generated_assets_dir.blank?
+
+    @configuration.generated_assets_dir = DEFAULT_GENERATED_ASSETS_DIR
+    puts "ReactOnRails: Set generated_assets_dir to default: #{DEFAULT_GENERATED_ASSETS_DIR}"
+  end
+
+  def self.configure_generated_assets_dirs_deprecation
+    return unless @configuration.generated_assets_dirs.present?
+
+    puts "[DEPRECATION] ReactOnRails: Use config.generated_assets_dir rather than "\
         "generated_assets_dirs"
-      if @configuration.generated_assets_dir.blank?
-        @configuration.generated_assets_dir = @configuration.generated_assets_dirs
-      else
-        puts "[DEPRECATION] ReactOnRails. You have both generated_assets_dirs and "\
-          "generated_assets_dir defined. Define ONLY generated_assets_dir"
-      end
-    end
-
     if @configuration.generated_assets_dir.blank?
-      @configuration.generated_assets_dir = DEFAULT_GENERATED_ASSETS_DIR
-      puts "ReactOnRails: Set generated_assets_dir to default: #{DEFAULT_GENERATED_ASSETS_DIR}"
+      @configuration.generated_assets_dir = @configuration.generated_assets_dirs
+    else
+      puts "[DEPRECATION] ReactOnRails. You have both generated_assets_dirs and "\
+          "generated_assets_dir defined. Define ONLY generated_assets_dir"
     end
+  end
 
-    if @configuration.server_bundle_js_file.include?(File::SEPARATOR)
-      puts "[DEPRECATION] ReactOnRails: remove path from server_bundle_js_file in configuration. "\
-        "All generated files must go in #{@configuration.generated_assets_dir}"
-      @configuration.server_bundle_js_file = File.basename(@configuration.server_bundle_js_file)
+  def self.ensure_webpack_generated_files_exists
+    return unless @configuration.webpack_generated_files.empty?
+
+    files = ["webpack-bundle.js"]
+    if @configuration.server_bundle_js_file.present?
+      files << @configuration.server_bundle_js_file
     end
+    @configuration.webpack_generated_files = files
+  end
+
+  def self.ensure_server_bundle_js_file_has_no_path
+    return unless @configuration.server_bundle_js_file.include?(File::SEPARATOR)
+
+    puts "[DEPRECATION] ReactOnRails: remove path from server_bundle_js_file in configuration. "\
+        "All generated files must go in #{@configuration.generated_assets_dir}"
+    @configuration.server_bundle_js_file = File.basename(@configuration.server_bundle_js_file)
   end
 
   def self.configuration
@@ -57,8 +70,9 @@ module ReactOnRails
       webpack_generated_files: [],
       rendering_extension: nil,
       server_render_method: "",
-      symlink_non_digested_assets_regex: /\.(png|jpg|jpeg|gif|tiff|woff|ttf|eot|svg)/,
+      symlink_non_digested_assets_regex: /\.(png|jpg|jpeg|gif|tiff|woff|ttf|eot|svg|map)/,
       npm_build_test_command: "",
+      i18n_dir: "",
       npm_build_production_command: ""
     )
   end
@@ -71,6 +85,7 @@ module ReactOnRails
                   :skip_display_none, :generated_assets_dirs, :generated_assets_dir,
                   :webpack_generated_files, :rendering_extension, :npm_build_test_command,
                   :npm_build_production_command,
+                  :i18n_dir,
                   :server_render_method, :symlink_non_digested_assets_regex
 
     def initialize(server_bundle_js_file: nil, prerender: nil, replay_console: nil,
@@ -81,12 +96,14 @@ module ReactOnRails
                    generated_assets_dir: nil, webpack_generated_files: nil,
                    rendering_extension: nil, npm_build_test_command: nil,
                    npm_build_production_command: nil,
+                   i18n_dir: nil,
                    server_render_method: nil, symlink_non_digested_assets_regex: nil)
       self.server_bundle_js_file = server_bundle_js_file
       self.generated_assets_dirs = generated_assets_dirs
       self.generated_assets_dir = generated_assets_dir
       self.npm_build_test_command = npm_build_test_command
       self.npm_build_production_command = npm_build_production_command
+      self.i18n_dir = i18n_dir
 
       self.prerender = prerender
       self.replay_console = replay_console

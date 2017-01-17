@@ -22,6 +22,18 @@ describe InstallGenerator, type: :generator do
     include_examples "react_with_redux_generator"
   end
 
+  context "--node" do
+    before(:all) { run_generator_test_with_args(%w(--node)) }
+    include_examples "base_generator", application_js: true
+    include_examples "node_generator"
+  end
+
+  context "-N" do
+    before(:all) { run_generator_test_with_args(%w(-N)) }
+    include_examples "base_generator", application_js: true
+    include_examples "node_generator"
+  end
+
   context "without existing application.js or application.js.coffee file" do
     before(:all) { run_generator_test_with_args([], application_js: false) }
     include_examples "base_generator", application_js: false
@@ -57,7 +69,7 @@ describe InstallGenerator, type: :generator do
         .gitignore was not found.
         Please add the following content to your .gitignore file:
         # React on Rails
-        npm-debug.log
+        npm-debug.log*
         node_modules
 
         # Generated js bundles
@@ -70,9 +82,8 @@ describe InstallGenerator, type: :generator do
   end
 
   context "with helpful message" do
-    specify "base generator contains a helpful message" do
-      run_generator_test_with_args(%w())
-      expected = <<-MSG.strip_heredoc
+    let(:expected) do
+      <<-MSG.strip_heredoc
 
         What to do next:
 
@@ -80,32 +91,22 @@ describe InstallGenerator, type: :generator do
 
               bundle && npm i
 
-          - Run the npm rails-server command to load the rails server.
+          - Run the foreman command to start the rails server and run webpack in watch mode.
 
-              npm run rails-server
+              foreman start -f Procfile.dev
 
           - Visit http://localhost:3000/hello_world and see your React On Rails app running!
-        MSG
+      MSG
+    end
+
+    specify "base generator contains a helpful message" do
+      run_generator_test_with_args(%w())
       expect(GeneratorMessages.output)
         .to include(GeneratorMessages.format_info(expected))
     end
 
     specify "react with redux generator contains a helpful message" do
       run_generator_test_with_args(%w(--redux))
-      expected = <<-MSG.strip_heredoc
-
-        What to do next:
-
-          - Ensure your bundle and npm are up to date.
-
-              bundle && npm i
-
-          - Run the npm rails-server command to load the rails server.
-
-              npm run rails-server
-
-          - Visit http://localhost:3000/hello_world and see your React On Rails app running!
-        MSG
       expect(GeneratorMessages.output)
         .to include(GeneratorMessages.format_info(expected))
     end

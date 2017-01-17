@@ -1,45 +1,120 @@
 # Change Log
-All notable changes to this project will be documented in this file. Items under `Unreleased` is upcoming features that will be out in next version.
+All notable changes to this project's source code will be documented in this file. Items under `Unreleased` is upcoming features that will be out in next version.
 
 Contributors: please follow the recommendations outlined at [keepachangelog.com](http://keepachangelog.com/). Please use the existing headings and styling as a guide, and add a link for the version diff at the bottom of the file. Also, please update the `Unreleased` link to compare to the latest release version.
 
 ## [Unreleased]
+*Please add entries here for your pull requests.*
 
-## [6.0.5]
-##### Added
-- Added better error messages to avoid issues with shared redux stores [#470](https://github.com/shakacode/react_on_rails/pull/470).
+## [6.4.0] - 2017-1-12
 
-## [6.0.4]
+### Possible Breaking Change
+- Since foreman is no longer a dependency of the React on Rails gem, please run `gem install foreman`. If you are using rvm, you may wish to run `rvm @global do gem install foreman` to install foreman for all your gemsets. 
+
+### Fixed
+- Removed foreman as a dependency. [#678](https://github.com/shakacode/react_on_rails/pull/678) by [x2es](https://github.com/x2es).
+
+### Added
+- Automatically generate __i18n__ javascript files for `react-intl` when the serve starts up. [#642](https://github.com/shakacode/react_on_rails/pull/642) by [JasonYCHuang](https://github.com/JasonYCHuang).
+
+## [6.3.5] - 2017-1-6
+### Fixed
+- The redux generator now creates a HelloWorld component that uses redux rather than local state. [#669](https://github.com/shakacode/react_on_rails/issues/669) by [justin808](https://github.com/justin808).
+
+## [6.3.4] - 2016-12-25
 ##### Fixed
-- Added polyfill for clearTimeout which is used by babel-polyfill [#451](https://github.com/shakacode/react_on_rails/pull/451).
+- Disable Turbolinks support when not supported. [#650](https://github.com/shakacode/react_on_rails/pull/650) by [ka2n](https://github.com/ka2n).
 
-## [6.0.3]
+## [6.3.3] - 2016-12-25
+##### Fixed
+- By using the hook on `turbolinks:before-visit` to unmount the components, we can ensure that components are unmounted even when Turbolinks cache is disabled. Previously, we used `turbolinks:before-cache` event hook. [#644](https://github.com/shakacode/react_on_rails/pull/644) by [volkanunsal](https://github.com/volkanunsal).
+- Added support for Ruby 2.0 [#651](https://github.com/shakacode/react_on_rails/pull/651) by [bbonamin](https://github.com/bbonamin).
+
+## [6.3.2] - 2016-12-5
+##### Fixed
+- The `react_component` method was raising a `NameError` when `ReactOnRailsHelper` was included in a plain object. [#636](https://github.com/shakacode/react_on_rails/pull/636) by [jtibbertsma](https://github.com/jtibbertsma).
+- "Node parse error" for node server rendering. [#641](https://github.com/shakacode/react_on_rails/pull/641) by [alleycat-at-git](https://github.com/alleycat-at-git) and [rocLv](https://github.com/rocLv)
+- Better error handling when the react-on-rails node package entry is missing.[#602](https://github.com/shakacode/react_on_rails/pull/602) by [benjiwheeler](https://github.com/benjiwheeler).
+
+## [6.3.1] - 2016-11-30
+##### Changed
+- Improved generator post-install help messages. [#631](https://github.com/shakacode/react_on_rails/pull/631) by [justin808](https://github.com/justin808).
+
+## [6.3.0] - 2016-11-30
+##### Changed
+- Modified register API to allow registration of renderers, allowing a user to manually render their app to the DOM. This allows for code splitting and deferred loading. [#581](https://github.com/shakacode/react_on_rails/pull/581) by [jtibbertsma](https://github.com/jtibbertsma).
+
+- Updated Basic Generator & Linters. Examples are simpler. [#624](https://github.com/shakacode/react_on_rails/pull/624) by [Judahmeek](https://github.com/Judahmeek).
+
+- Slight improvement to the 'no hydrated stores' error. [#605](https://github.com/shakacode/react_on_rails/pull/605) by [cookiefission](https://github.com/cookiefission).
+
+- Don't assume ActionMailer is available. [#608](https://github.com/shakacode/react_on_rails/pull/608) by [tuzz](https://github.com/tuzz).
+
+## [6.2.1] - 2016-11-19
+- Removed unnecesary passing of context in the HelloWorld Container example and basic generator. [#612](https://github.com/shakacode/react_on_rails/pull/612) by [justin808](https://github.com/justin808)
+
+- Turbolinks 5 bugfix to use `before-cache`, not `before-render`. [#611](https://github.com/shakacode/react_on_rails/pull/611) by [volkanunsal](https://github.com/volkanunsal).
+
+## [6.2.0] - 2016-11-19
+##### Changed
+- Updated the generator templates to reflect current best practices, especially for the redux version. [#584](https://github.com/shakacode/react_on_rails/pull/584) by [nostophilia](https://github.com/nostophilia).
+
+## [6.1.2] - 2016-10-24
+##### Fixed
+- Added compatibility with older manifest.yml files produced by Rails 3 Sprockets when symlinking digested assets during precompilation [#566](https://github.com/shakacode/react_on_rails/pull/566) by [etripier](https://github.com/etripier).
+
+## [6.1.1] - 2016-09-09
+##### Fixed
+- React on Rails was incorrectly failing to create symlinks when a file existed in the location for the new symlink. [#491](https://github.com/shakacode/react_on_rails/pull/541) by [robwise ](https://github.com/robwise) and [justin808](https://github.com/justin808).
+
+## [6.1.0] - 2016-08-21
+
+##### Added
+- Node option for installer added as alternative for server rendering [#469](https://github.com/shakacode/react_on_rails/pull/469) by [jbhatab](https://github.com/jbhatab).
+- Server rendering now supports contexts outside of browser rendering, such as ActionMailer templates [#486](https://github.com/shakacode/react_on_rails/pull/486) by [eacaps](https://github.com/eacaps).
+- Added authenticityToken() and authenticityHeaders() javascript helpers for easier use when working with CSRF protection tag generated by Rails [#517](https://github.com/shakacode/react_on_rails/pull/517) by [dzirtusss](https://github.com/dzirtusss).
+- Updated JavaScript error handling on the client side. Errors in client rendering now pass through to the browser [#521](https://github.com/shakacode/react_on_rails/pull/521) by [dzirtusss](https://github.com/dzirtusss).
+
+##### Fixed
+- React on Rails now correctly parses single-digit version strings from package.json [#491](https://github.com/shakacode/react_on_rails/pull/491) by [samphilipd ](https://github.com/samphilipd).
+- Fixed assets symlinking to correctly use filenames with spaces. Begining in [#510](https://github.com/shakacode/react_on_rails/pull/510), ending in [#513](https://github.com/shakacode/react_on_rails/pull/513) by [dzirtusss](https://github.com/dzirtusss).
+- Check encoding of request's original URL and force it to UTF-8 [#527](https://github.com/shakacode/react_on_rails/pull/527) by [lucke84](https://github.com/lucke84)
+
+## [6.0.5] - 2016-07-11
+##### Added
+- Added better error messages to avoid issues with shared redux stores [#470](https://github.com/shakacode/react_on_rails/pull/470) by by [justin808](https://github.com/justin808).
+
+## [6.0.4] - 2016-06-13
+##### Fixed
+- Added polyfill for clearTimeout which is used by babel-polyfill [#451](https://github.com/shakacode/react_on_rails/pull/451) by [martyphee](https://github.com/martyphee)
+
+## [6.0.3] - 2016-06-07
 ##### Fixed
 - Added assets symlinking support on Heroku [#446](https://github.com/shakacode/react_on_rails/pull/446) by [Alexey Karasev](https://github.com/alleycat-at-git).
 
-## [6.0.2]
+## [6.0.2] - 2016-06-06
 ##### Fixed
 - Fix colisions in ids of DOM nodes generated by `react_component` by indexing in using an UUID rather than an auto-increment value. This means that it should be overriden using the `id` parameter of `react_component` if one wants to generate a predictable id (_e.g._ for testing purpose). See [Issue #437](https://github.com/shakacode/react_on_rails/issues/437). Fixed in [#438](https://github.com/shakacode/react_on_rails/pull/438) by [Michael Baudino](https://github.com/michaelbaudino).
 
-## [6.0.1]
+## [6.0.1] - 2016-05-27
 ##### Fixed
 - Allow for older version of manifest.json for older versions of sprockets. See [Issue #435](https://github.com/shakacode/react_on_rails/issues/435). Fixed in [#436](https://github.com/shakacode/react_on_rails/pull/436) by [alleycat-at-git](https://github.com/alleycat-at-git).
 
-## [6.0.0]
+## [6.0.0] - 2016-05-25
 ##### Breaking Changes
-- Added automatic compilation of assets at precompile is now done by ReactOnRails. Thus, you don't need to provide your own assets.rake file that does the precompilation. 
+- Added automatic compilation of assets at precompile is now done by ReactOnRails. Thus, you don't need to provide your own assets.rake file that does the precompilation.
   [#398](https://github.com/shakacode/react_on_rails/pull/398) by [robwise](https://github.com/robwise), [jbhatab](https://github.com/jbhatab), and [justin808](https://github.com/justin808).
 - **Migration to v6**
   - Do not run the generator again if you've already run it.
 
   - See [shakacode/react-webpack-rails-tutorial/pull/287](https://github.com/shakacode/react-webpack-rails-tutorial/pull/287) for an    example of upgrading from v5.
-  
+
   - To configure the asset compliation you can either
     1. Specify a `config/react_on_rails` setting for `npm_build_production_command` to be nil to turn this feature off.
     2. Specify the script command you want to run to build your production assets, and remove your assets.rake file.
 
   - If you are using the ReactOnRails test helper, then you will need to add the 'config.npm_build_test_command' to your config to tell react_on_rails what command to run when you run rspec.
-   
+
 - See [shakacode/react-webpack-rails-tutorial #287](https://github.com/shakacode/react-webpack-rails-tutorial/pull/287/files) for an upgrade example. The PR has a few comments on the upgrade.
 
 Here is the addition to the generated config file:
@@ -89,10 +164,10 @@ Here is the addition to the generated config file:
 
 ## [5.1.1] - 2016-04-04
 ##### Fixed
-- [Security] Address failure to sanitize console messages when server rendering and displaying in the browser console. See [#366](https://github.com/shakacode/react_on_rails/pull/366) and [#370](https://github.com/shakacode/react_on_rails/pull/370) by [justin808](https://github.com/justin808)
+- Security Fixes: Address failure to sanitize console messages when server rendering and displaying in the browser console. See [#366](https://github.com/shakacode/react_on_rails/pull/366) and [#370](https://github.com/shakacode/react_on_rails/pull/370) by [justin808](https://github.com/justin808)
 
 ##### Added
-- railsContext includes the port number and a boolean if the code is being run on the server or client. 
+- railsContext includes the port number and a boolean if the code is being run on the server or client.
 
 ## [5.1.0] - 2016-04-03
 ##### Added
@@ -118,7 +193,7 @@ All 5.1.0 changes can be found in [#362](https://github.com/shakacode/react_on_r
 - Previously, you could pass arbitrary additional html attributes to react_component. Now, you need to pass them in as a named parameter `html_options` to react_component.
 
 ##### Breaking Changes
-- You must provide named attributes, including `props` for view helper `react_compnent`. See [this commit]](https://github.com/shakacode/react-webpack-rails-tutorial/commit/a97fa90042cbe27be7fd7fa70b5622bfcf9c3673) for an example migration used for [www.reactrails.com](http://www.reactrails.com).
+- You must provide named attributes, including `props` for view helper `react_component`. See [this commit](https://github.com/shakacode/react-webpack-rails-tutorial/commit/a97fa90042cbe27be7fd7fa70b5622bfcf9c3673) for an example migration used for [www.reactrails.com](http://www.reactrails.com).
 
 ## [4.0.3] - 2016-03-17
 
@@ -353,7 +428,19 @@ Best done with Object destructing:
 ##### Fixed
 - Fix several generator related issues.
 
-[Unreleased]: https://github.com/shakacode/react_on_rails/compare/6.0.5...master
+[Unreleased]: https://github.com/shakacode/react_on_rails/compare/6.4.0...master
+[6.4.0]: https://github.com/shakacode/react_on_rails/compare/6.3.5...6.4.0
+[6.3.5]: https://github.com/shakacode/react_on_rails/compare/6.3.4...6.3.5
+[6.3.4]: https://github.com/shakacode/react_on_rails/compare/6.3.3...6.3.4
+[6.3.3]: https://github.com/shakacode/react_on_rails/compare/6.3.2...6.3.3
+[6.3.2]: https://github.com/shakacode/react_on_rails/compare/6.3.1...6.3.2
+[6.3.1]: https://github.com/shakacode/react_on_rails/compare/6.3.0...6.3.1
+[6.3.0]: https://github.com/shakacode/react_on_rails/compare/6.2.1...6.3.0
+[6.2.1]: https://github.com/shakacode/react_on_rails/compare/6.2.0...6.2.1
+[6.2.0]: https://github.com/shakacode/react_on_rails/compare/6.1.2...6.2.0
+[6.1.2]: https://github.com/shakacode/react_on_rails/compare/6.1.1...6.1.2
+[6.1.1]: https://github.com/shakacode/react_on_rails/compare/6.1.0...6.1.1
+[6.1.0]: https://github.com/shakacode/react_on_rails/compare/6.0.5...6.1.0
 [6.0.5]: https://github.com/shakacode/react_on_rails/compare/6.0.4...6.0.5
 [6.0.4]: https://github.com/shakacode/react_on_rails/compare/6.0.3...6.0.4
 [6.0.3]: https://github.com/shakacode/react_on_rails/compare/6.0.2...6.0.3

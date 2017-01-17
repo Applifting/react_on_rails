@@ -1,4 +1,4 @@
-import React, {PropTypes} from 'react';
+import React, { PropTypes } from 'react';
 import RailsContext from './RailsContext';
 
 // Super simple example of the simplest possible React component
@@ -11,10 +11,14 @@ export default class HelloWorldRedux extends React.Component {
   };
 
   // Not necessary if we only call super, but we'll need to initialize state, etc.
-  constructor(props, context) {
-    super(props, context);
+  constructor(props) {
+    super(props);
     this.setNameDomRef = this.setNameDomRef.bind(this);
     this.handleChange = this.handleChange.bind(this);
+  }
+
+  setNameDomRef(nameDomNode) {
+    this.nameDomRef = nameDomNode;
   }
 
   handleChange() {
@@ -22,13 +26,9 @@ export default class HelloWorldRedux extends React.Component {
     this.props.actions.updateName(name);
   }
 
-  setNameDomRef(nameDomNode) {
-    this.nameDomRef = nameDomNode;
-  }
-
   render() {
-    const {data, railsContext} = this.props;
-    const {name} = data;
+    const { data, railsContext } = this.props;
+    const { name } = data;
 
     // If this creates an alert, we have a problem!
     // see file node_package/src/scriptSanitizedVal.js for the fix to this prior issue.
@@ -52,7 +52,7 @@ export default class HelloWorldRedux extends React.Component {
             onChange={this.handleChange}
           />
         </p>
-        <RailsContext {...{railsContext}} />
+        <RailsContext {...{ railsContext }} />
       </div>
     );
   }

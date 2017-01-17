@@ -2,6 +2,8 @@
 // cd client && npm run build:client
 // Note that Foreman (Procfile.dev) has also been configured to take care of this.
 
+/* eslint-disable comma-dangle */
+
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 
@@ -12,9 +14,10 @@ const devBuild = process.env.NODE_ENV !== 'production';
 config.output = {
   filename: '[name]-bundle.js',
   path: '../app/assets/webpack',
+  publicPath: '/assets/',
 };
 
-// See webpack.common.config for adding modules common to both the webpack dev server and rails
+// See webpack.client.base.config for adding modules common to both the webpack dev server and rails
 
 config.module.loaders.push(
   {

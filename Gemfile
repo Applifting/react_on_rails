@@ -21,17 +21,18 @@ gem "scss_lint", require: false
 gem "sdoc", "~> 0.4.0", group: :doc
 gem "spring"
 gem "sqlite3"
-gem "therubyracer"
+gem "mini_racer"
 if ENV["ENABLE_TURBOLINKS_5"].nil? || ENV["ENABLE_TURBOLINKS_5"].strip.empty?
   gem "turbolinks", "2.5.3"
 else
-  gem "turbolinks", "~> 5.0.0.beta"
+  gem "turbolinks", "~> 5.0"
 end
 gem "uglifier", ">= 2.7.2"
 gem "web-console", "~> 2.0", group: :development
 
 # below are copied from spec/dummy/Gemfile
 gem "rspec-rails"
+gem "rspec-retry"
 gem "capybara"
 gem "capybara-screenshot"
 gem "capybara-webkit"

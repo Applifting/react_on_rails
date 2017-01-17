@@ -22,8 +22,12 @@ import ReduxSharedStoreApp from './ServerReduxSharedStoreApp';
 import RouterApp from './ServerRouterApp';
 
 import PureComponent from '../components/PureComponent';
+import CssModulesImagesFontsExample from '../components/CssModulesImagesFontsExample';
 
 import SharedReduxStore from '../stores/SharedReduxStore';
+
+// Deferred render on the client side w/ server render
+import DeferredRenderApp from './DeferredRenderAppServer';
 
 ReactOnRails.register({
   HelloWorld,
@@ -35,6 +39,8 @@ ReactOnRails.register({
   RouterApp,
   HelloString,
   PureComponent,
+  CssModulesImagesFontsExample,
+  DeferredRenderApp,
 });
 
 ReactOnRails.registerStore({

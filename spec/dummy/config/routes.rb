@@ -20,7 +20,12 @@ Rails.application.routes.draw do
   get "server_side_redux_app" => "pages#server_side_redux_app"
   get "server_side_hello_world_with_options" => "pages#server_side_hello_world_with_options"
   get "server_side_redux_app_cached" => "pages#server_side_redux_app_cached"
+  get "client_side_manual_render" => "pages#client_side_manual_render"
+  get "deferred_render_with_server_rendering(/*all)" =>
+    "pages#deferred_render_with_server_rendering", as: :deferred_render
   get "render_js" => "pages#render_js"
   get "react_router(/*all)" => "react_router#index", as: :react_router
   get "pure_component" => "pages#pure_component"
+  get "css_modules_images_fonts_example" => "pages#css_modules_images_fonts_example"
+  get "turbolinks_cache_disabled" => "pages#turbolinks_cache_disabled"
 end

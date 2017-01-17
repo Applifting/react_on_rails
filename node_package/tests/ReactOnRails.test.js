@@ -1,15 +1,13 @@
 /* eslint-disable react/no-multi-comp */
+/* eslint-disable react/prefer-es6-class */
+/* eslint-disable react/prefer-stateless-function */
+/* eslint-disable react/jsx-filename-extension */
+
 import test from 'tape';
 import { createStore } from 'redux';
 import React from 'react';
-import ReactOnRails from '../src/ReactOnRails';
-import { canUseDOM } from 'fbjs/lib/ExecutionEnvironment';
-import JsDom from 'jsdom';
 
-if (!canUseDOM) {
-  global.document = JsDom.jsdom('<div id="root"></div>');
-  global.window = document.defaultView;
-}
+import ReactOnRails from '../src/ReactOnRails';
 
 test('ReactOnRails render returns a virtual DOM element for component', (assert) => {
   assert.plan(1);
@@ -21,6 +19,8 @@ test('ReactOnRails render returns a virtual DOM element for component', (assert)
     },
   });
   ReactOnRails.register({ R1 });
+
+  // eslint-disable-next-line no-underscore-dangle
   const actual = ReactOnRails.render('R1', {}, 'root')._reactInternalInstance._currentElement.type;
   assert.deepEqual(actual, R1,
     'ReactOnRails render should return a virtual DOM element for component');
@@ -56,7 +56,7 @@ test('serverRenderReactComponent throws error for invalid options', (assert) => 
   assert.throws(
     () => ReactOnRails.setOptions({ foobar: true }),
     /Invalid option/,
-    'setOptions should throw an error for invalid options'
+    'setOptions should throw an error for invalid options',
   );
 });
 
@@ -66,31 +66,31 @@ test('registerStore throws if passed a falsey object (null, undefined, etc)', (a
   assert.throws(
     () => ReactOnRails.registerStore(null),
     /null or undefined/,
-    'registerStore should throw an error if a falsey value is passed (null)'
+    'registerStore should throw an error if a falsey value is passed (null)',
   );
 
   assert.throws(
     () => ReactOnRails.registerStore(undefined),
     /null or undefined/,
-    'registerStore should throw an error if a falsey value is passed (undefined)'
+    'registerStore should throw an error if a falsey value is passed (undefined)',
   );
 
   assert.throws(
     () => ReactOnRails.registerStore(false),
     /null or undefined/,
-    'registerStore should throw an error if a falsey value is passed (false)'
+    'registerStore should throw an error if a falsey value is passed (false)',
   );
 });
 
 test('register store and getStoreGenerator allow registration', (assert) => {
   assert.plan(2);
-  function reducer(state = {}, action) {
+  function reducer() {
     return {};
   }
 
   function storeGenerator(props) {
     return createStore(reducer, props);
-  };
+  }
 
   ReactOnRails.registerStore({ storeGenerator });
 
@@ -104,13 +104,13 @@ ${JSON.stringify(ReactOnRails.storeGenerators())}.`);
 
 test('setStore and getStore', (assert) => {
   assert.plan(2);
-  function reducer(state = {}, action) {
+  function reducer() {
     return {};
   }
 
   function storeGenerator(props) {
     return createStore(reducer, props);
-  };
+  }
 
   const store = storeGenerator({});
 

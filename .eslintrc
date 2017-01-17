@@ -1,6 +1,4 @@
 ---
-parser: babel-eslint
-
 extends: eslint-config-shakacode
 
 plugins:
@@ -18,6 +16,5 @@ env:
 rules:
   no-console: 0
 
-  no-unused-vars:
-    - 2
-    - argsIgnorePattern: ^_
+  # https://github.com/benmosher/eslint-plugin-import/issues/340
+  import/no-extraneous-dependencies: 0

@@ -12,16 +12,18 @@ class HelloWorld extends React.Component {
       name: PropTypes.string,
     }).isRequired,
     railsContext: PropTypes.object,
-
-    error: PropTypes.any,
   };
 
   // Not necessary if we only call super, but we'll need to initialize state, etc.
-  constructor(props, context) {
-    super(props, context);
+  constructor(props) {
+    super(props);
     this.state = props.helloWorldData;
     this.setNameDomRef = this.setNameDomRef.bind(this);
     this.handleChange = this.handleChange.bind(this);
+  }
+
+  setNameDomRef(nameDomNode) {
+    this.nameDomRef = nameDomNode;
   }
 
   handleChange() {
@@ -29,13 +31,9 @@ class HelloWorld extends React.Component {
     this.setState({ name });
   }
 
-  setNameDomRef(nameDomNode) {
-    this.nameDomRef = nameDomNode;
-  }
-
   render() {
-    console.log(`\HelloWorld demonstrating a call to console.log in \
-spec/dummy/client/app/components/HelloWorld.jsx:18`);
+    console.log('HelloWorld demonstrating a call to console.log in ' +
+      'spec/dummy/client/app/components/HelloWorld.jsx:18');
 
     const { name } = this.state;
     const { railsContext } = this.props;
@@ -54,7 +52,7 @@ spec/dummy/client/app/components/HelloWorld.jsx:18`);
             onChange={this.handleChange}
           />
         </p>
-        { railsContext && <RailsContext {...{railsContext}} /> }
+        { railsContext && <RailsContext {...{ railsContext }} /> }
       </div>
     );
   }

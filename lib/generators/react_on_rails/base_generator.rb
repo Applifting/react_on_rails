@@ -23,7 +23,7 @@ module ReactOnRails
       def update_git_ignore
         data = <<-DATA.strip_heredoc
           # React on Rails
-          npm-debug.log
+          npm-debug.log*
           node_modules
 
           # Generated js bundles
@@ -44,7 +44,7 @@ module ReactOnRails
         DATA
 
         app_js_path = "app/assets/javascripts/application.js"
-        found_app_js = dest_file_exists?(app_js_path) || dest_file_exists?(app_js_path + ".coffee")
+        found_app_js = dest_file_exists?(app_js_path) || dest_file_exists?("#{app_js_path}.coffee")
         if found_app_js
           prepend_to_file(found_app_js, data)
         else
@@ -68,21 +68,19 @@ module ReactOnRails
                         client/.babelrc
                         client/webpack.config.js
                         client/REACT_ON_RAILS_CLIENT_README.md)
-        base_files.each { |file| copy_file(base_path + file, file) }
+        base_files.each { |file| copy_file("#{base_path}#{file}", file) }
       end
 
       def template_base_files
         base_path = "base/base/"
         %w(config/initializers/react_on_rails.rb
            Procfile.dev
-           app/views/hello_world/index.html.erb
            package.json
-           client/app/bundles/HelloWorld/components/HelloWorldWidget.jsx
-           client/package.json).each { |file| template(base_path + file + ".tt", file) }
+           client/package.json).each { |file| template("#{base_path}#{file}.tt", file) }
       end
 
       def add_base_gems_to_gemfile
-        append_to_file("Gemfile", "\ngem 'therubyracer', platforms: :ruby\n")
+        append_to_file("Gemfile", "\ngem 'mini_racer', platforms: :ruby\n")
       end
 
       ASSETS_RB_APPEND = <<-DATA.strip_heredoc
@@ -99,11 +97,11 @@ Rails.application.config.assets.paths << Rails.root.join("app", "assets", "webpa
       DATA
 
       def append_to_assets_initializer
-        assets_intializer = File.join(destination_root, "config/initializers/assets.rb")
-        if File.exist?(assets_intializer)
-          append_to_file(assets_intializer, ASSETS_RB_APPEND)
+        assets_initializer = File.join(destination_root, "config/initializers/assets.rb")
+        if File.exist?(assets_initializer)
+          append_to_file(assets_initializer, ASSETS_RB_APPEND)
         else
-          create_file(assets_intializer, ASSETS_RB_APPEND)
+          create_file(assets_initializer, ASSETS_RB_APPEND)
         end
       end
 
@@ -118,8 +116,10 @@ Rails.application.config.assets.paths << Rails.root.join("app", "assets", "webpa
           else
             GeneratorMessages.add_info(
               <<-MSG.strip_heredoc
-              Did not find spec/rails_helper.rb or spec/spec_helper.rb to add line
-              config.example_status_persistence_file_path = "spec/examples.txt"
+              Did not find spec/rails_helper.rb or spec/spec_helper.rb to add
+                # Ensure that if we are running js tests, we are using latest webpack assets
+                # This will use the defaults of :js and :server_rendering meta tags
+                ReactOnRails::TestHelper.configure_rspec_to_compile_assets(config)
               MSG
             )
           end
@@ -142,9 +142,9 @@ Rails.application.config.assets.paths << Rails.root.join("app", "assets", "webpa
 
                 bundle && npm i
 
-            - Run the npm rails-server command to load the rails server.
+            - Run the foreman command to start the rails server and run webpack in watch mode.
 
-                npm run rails-server
+                foreman start -f Procfile.dev
 
             - Visit http://localhost:3000/hello_world and see your React On Rails app running!
         MSG

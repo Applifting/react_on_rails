@@ -23,13 +23,13 @@ namespace :lint do
     sh_in_dir(gem_root, "npm run eslint")
   end
 
-  desc "Run jscs from shell"
-  task :jscs do
-    sh_in_dir(gem_root, "npm run jscs")
+  desc "Run flow from shell"
+  task :flow do
+    sh_in_dir(gem_root, "npm run flow")
   end
 
-  desc "Run all eslint, jscs, rubocop linters. Skip ruby-lint and scss"
-  task lint: [:eslint, :jscs, :rubocop] do
+  desc "Run all eslint, flow, rubocop linters. Skip ruby-lint and scss"
+  task lint: [:eslint, :flow, :rubocop] do
     puts "Completed all linting"
   end
 end

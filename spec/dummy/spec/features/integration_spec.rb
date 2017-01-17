@@ -143,6 +143,39 @@ feature "React Router", js: true, driver: js_errors_driver do
   end
 end
 
+feature "Manual Rendering", :js do
+  subject { page }
+  background { visit "/client_side_manual_render" }
+  scenario "renderer function is called successfully" do
+    header_text = page.find(:css, "h1").text
+    expect(header_text).to eq("Manual Render Example")
+    expect(subject).to have_text "If you can see this, you can register renderer functions."
+  end
+end
+
+feature "Code Splitting", :js do
+  subject { page }
+  background { visit "/deferred_render_with_server_rendering" }
+  scenario "clicking on async route causes async component to be fetched" do
+    header_text = page.find(:css, "h1").text
+    expect(header_text).to eq("Deferred Rendering")
+    expect(subject).to_not have_text "Noice!"
+
+    click_link "Test Async Route"
+    expect(current_path).to eq("/deferred_render_with_server_rendering/async_page")
+    expect(subject).to have_text "Noice!"
+  end
+end
+
+feature "Code Splitting w/ Server Rendering", :js do
+  subject { page }
+  background { visit "/deferred_render_with_server_rendering/async_page" }
+  scenario "loading an asyncronous route should not cause a client/server checksum mismatch" do
+    root = page.find(:xpath, "//div[@data-reactroot]")
+    expect(root["data-react-checksum"].present?).to be(true)
+  end
+end
+
 shared_examples "React Component Shared Store" do |url|
   subject { page }
   background { visit url }
@@ -150,7 +183,7 @@ shared_examples "React Component Shared Store" do |url|
     scenario "Type in one component changes the other component" do
       expect(current_path).to eq(url)
       new_text = "John Doe"
-      new_text_2 = "Jane Smith"
+      new_text2 = "Jane Smith"
       within("#ReduxSharedStoreApp-react-component-0") do
         find("input").set new_text
         within("h3") do
@@ -161,11 +194,11 @@ shared_examples "React Component Shared Store" do |url|
         within("h3") do
           is_expected.to have_content new_text
         end
-        find("input").set new_text_2
+        find("input").set new_text2
       end
       within("#ReduxSharedStoreApp-react-component-0") do
         within("h3") do
-          is_expected.to have_content new_text_2
+          is_expected.to have_content new_text2
         end
       end
     end

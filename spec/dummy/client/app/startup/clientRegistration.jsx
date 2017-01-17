@@ -9,11 +9,15 @@ import ReduxApp from './ClientReduxApp';
 import ReduxSharedStoreApp from './ClientReduxSharedStoreApp';
 import RouterApp from './ClientRouterApp';
 import PureComponent from '../components/PureComponent';
+import CacheDisabled from '../components/CacheDisabled';
+import CssModulesImagesFontsExample from '../components/CssModulesImagesFontsExample';
+import ManualRenderApp from './ManualRenderAppRenderer';
+import DeferredRenderApp from './DeferredRenderAppRenderer';
 
-import SharedReduxStore from '../stores/SharedReduxStore'
+import SharedReduxStore from '../stores/SharedReduxStore';
 
 ReactOnRails.setOptions({
-  traceTurbolinks: true
+  traceTurbolinks: true,
 });
 
 ReactOnRails.register({
@@ -25,8 +29,12 @@ ReactOnRails.register({
   HelloWorldApp,
   RouterApp,
   PureComponent,
+  CssModulesImagesFontsExample,
+  ManualRenderApp,
+  DeferredRenderApp,
+  CacheDisabled
 });
 
 ReactOnRails.registerStore({
-  SharedReduxStore
+  SharedReduxStore,
 });

@@ -12,7 +12,7 @@ shared_examples "base_generator" do
     match = <<-MATCH.strip_heredoc
       some existing text
       # React on Rails
-      npm-debug.log
+      npm-debug.log*
       node_modules
 
       # Generated js bundles
@@ -38,11 +38,10 @@ shared_examples "base_generator" do
 
   it "copies react files" do
     %w(app/controllers/hello_world_controller.rb
-       app/views/hello_world/index.html.erb
+       client/app/bundles/HelloWorld/components/HelloWorld.jsx
        client/REACT_ON_RAILS_CLIENT_README.md
        client/webpack.config.js
        client/.babelrc
-       client/app/bundles/HelloWorld/startup/HelloWorldApp.jsx
        client/package.json
        config/initializers/react_on_rails.rb
        package.json
@@ -56,7 +55,7 @@ shared_examples "base_generator" do
 
   it "templates HelloWorldApp into webpack.config.js" do
     assert_file("client/webpack.config.js") do |contents|
-      assert_match("HelloWorldApp", contents)
+      assert_match("registration", contents)
     end
   end
 end

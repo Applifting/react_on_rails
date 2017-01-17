@@ -1,11 +1,12 @@
+/* eslint-disable react/prop-types */
+
 import React from 'react';
-import ReactOnRails from './ReactOnRails';
 
 /**
  * Logic to either call the generatorFunction or call React.createElement to get the
  * React.Component
  * @param options
- * @param options.name
+ * @param options.componentObj
  * @param options.props
  * @param options.domNodeId
  * @param options.trace
@@ -13,13 +14,14 @@ import ReactOnRails from './ReactOnRails';
  * @returns {Element}
  */
 export default function createReactElement({
-  name,
+  componentObj,
   props,
   railsContext,
   domNodeId,
   trace,
-  location,
   }) {
+  const { name, component, generatorFunction } = componentObj;
+
   if (trace) {
     if (railsContext && railsContext.serverSide) {
       console.log(`RENDERED ${name} to dom node with id: ${domNodeId} with railsContext:`,
@@ -29,10 +31,6 @@ export default function createReactElement({
         props, railsContext);
     }
   }
-
-  const componentObj = ReactOnRails.getComponent(name);
-
-  const { component, generatorFunction } = componentObj;
 
   if (generatorFunction) {
     return component(props, railsContext);

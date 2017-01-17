@@ -1,18 +1,32 @@
+/* global ReactOnRails Turbolinks */
+
 import ReactDOM from 'react-dom';
 
 import createReactElement from './createReactElement';
-import handleError from './handleError';
 import isRouterResult from './isRouterResult';
 
 const REACT_ON_RAILS_COMPONENT_CLASS_NAME = 'js-react-on-rails-component';
 const REACT_ON_RAILS_STORE_CLASS_NAME = 'js-react-on-rails-store';
+
+function findContext() {
+  if (typeof window.ReactOnRails !== 'undefined') {
+    return window;
+  } else if (typeof ReactOnRails !== 'undefined') {
+    return global;
+  }
+
+  throw new Error(`\
+ReactOnRails is undefined in both global and window namespaces.
+  `);
+}
 
 function debugTurbolinks(...msg) {
   if (!window) {
     return;
   }
 
-  if (ReactOnRails.option('traceTurbolinks')) {
+  const context = findContext();
+  if (context.ReactOnRails.option('traceTurbolinks')) {
     console.log('TURBO:', ...msg);
   }
 }
@@ -21,38 +35,62 @@ function turbolinksInstalled() {
   return (typeof Turbolinks !== 'undefined');
 }
 
+function forEach(fn, className, railsContext) {
+  const els = document.getElementsByClassName(className);
+  for (let i = 0; i < els.length; i += 1) {
+    fn(els[i], railsContext);
+  }
+}
+
 function forEachComponent(fn, railsContext) {
   forEach(fn, REACT_ON_RAILS_COMPONENT_CLASS_NAME, railsContext);
+}
+
+function initializeStore(el, railsContext) {
+  const context = findContext();
+  const name = el.getAttribute('data-store-name');
+  const props = JSON.parse(el.getAttribute('data-props'));
+  const storeGenerator = context.ReactOnRails.getStoreGenerator(name);
+  const store = storeGenerator(props, railsContext);
+  context.ReactOnRails.setStore(name, store);
 }
 
 function forEachStore(railsContext) {
   forEach(initializeStore, REACT_ON_RAILS_STORE_CLASS_NAME, railsContext);
 }
 
-function forEach(fn, className, railsContext) {
-  const els = document.getElementsByClassName(className);
-  for (let i = 0; i < els.length; i++) {
-    fn(els[i], railsContext);
-  }
-}
-
 function turbolinksVersion5() {
   return (typeof Turbolinks.controller !== 'undefined');
 }
 
-function initializeStore(el, railsContext) {
-  const name = el.getAttribute('data-store-name');
-  const props = JSON.parse(el.getAttribute('data-props'));
-  const storeGenerator = ReactOnRails.getStoreGenerator(name);
-  const store = storeGenerator(props, railsContext);
-  ReactOnRails.setStore(name, store);
+function turbolinksSupported() {
+  return Turbolinks.supported;
+}
+
+function delegateToRenderer(componentObj, props, railsContext, domNodeId, trace) {
+  const { name, component, isRenderer } = componentObj;
+
+  if (isRenderer) {
+    if (trace) {
+      console.log(`\
+DELEGATING TO RENDERER ${name} for dom node with id: ${domNodeId} with props, railsContext:`,
+        props, railsContext);
+    }
+
+    component(props, railsContext, domNodeId);
+    return true;
+  }
+
+  return false;
 }
 
 /**
- * Used for client rendering by ReactOnRails
+ * Used for client rendering by ReactOnRails. Either calls ReactDOM.render or delegates
+ * to a renderer registered by the user.
  * @param el
  */
 function render(el, railsContext) {
+  const context = findContext();
   const name = el.getAttribute('data-component-name');
   const domNodeId = el.getAttribute('data-dom-id');
   const props = JSON.parse(el.getAttribute('data-props'));
@@ -61,12 +99,17 @@ function render(el, railsContext) {
   try {
     const domNode = document.getElementById(domNodeId);
     if (domNode) {
+      const componentObj = context.ReactOnRails.getComponent(name);
+      if (delegateToRenderer(componentObj, props, railsContext, domNodeId, trace)) {
+        return;
+      }
+
       const reactElementOrRouterResult = createReactElement({
-        name,
+        componentObj,
         props,
         domNodeId,
         trace,
-        railsContext
+        railsContext,
       });
 
       if (isRouterResult(reactElementOrRouterResult)) {
@@ -78,11 +121,9 @@ You should return a React.Component always for the client side entry point.`);
       }
     }
   } catch (e) {
-    handleError({
-      e,
-      name,
-      serverSide: false,
-    });
+    e.message = `ReactOnRails encountered an error while rendering component: ${name}.` +
+      `Original message: ${e.message}`;
+    throw e;
   }
 }
 
@@ -90,9 +131,9 @@ function parseRailsContext() {
   const el = document.getElementById('js-react-on-rails-context');
   if (el) {
     return JSON.parse(el.getAttribute('data-rails-context'));
-  } else {
-    return null;
   }
+
+  return null;
 }
 
 export function reactOnRailsPageLoaded() {
@@ -123,12 +164,13 @@ export function clientStartup(context) {
   }
 
   // Tried with a file local variable, but the install handler gets called twice.
+  // eslint-disable-next-line no-underscore-dangle
   if (context.__REACT_ON_RAILS_EVENT_HANDLERS_RAN_ONCE__) {
     return;
   }
 
-  context.__REACT_ON_RAILS_EVENT_HANDLERS_RAN_ONCE__ = // eslint-disable-line no-param-reassign
-    true;
+  // eslint-disable-next-line no-underscore-dangle, no-param-reassign
+  context.__REACT_ON_RAILS_EVENT_HANDLERS_RAN_ONCE__ = true;
 
   debugTurbolinks('Adding DOMContentLoaded event to install event listeners.');
 
@@ -137,18 +179,12 @@ export function clientStartup(context) {
     // We must do this check for turbolinks AFTER the document is loaded because we load the
     // Webpack bundles first.
 
-    if (!turbolinksInstalled()) {
-      debugTurbolinks(
-        'NOT USING TURBOLINKS: DOMContentLoaded event, calling reactOnRailsPageLoaded'
-      );
-      reactOnRailsPageLoaded();
-    } else {
+    if (turbolinksInstalled() && turbolinksSupported()) {
       if (turbolinksVersion5()) {
         debugTurbolinks(
-          'USING TURBOLINKS 5: document added event listeners turbolinks:before-render and ' +
-          'turbolinks:load.'
-        );
-        document.addEventListener('turbolinks:before-render', reactOnRailsPageUnloaded);
+          'USING TURBOLINKS 5: document added event listeners ' +
+          ' turbolinks:before-visit and turbolinks:load.');
+        document.addEventListener('turbolinks:before-visit', reactOnRailsPageUnloaded);
         document.addEventListener('turbolinks:load', reactOnRailsPageLoaded);
       } else {
         debugTurbolinks(
@@ -157,6 +193,11 @@ export function clientStartup(context) {
         document.addEventListener('page:before-unload', reactOnRailsPageUnloaded);
         document.addEventListener('page:change', reactOnRailsPageLoaded);
       }
+    } else {
+      debugTurbolinks(
+        'NOT USING TURBOLINKS: DOMContentLoaded event, calling reactOnRailsPageLoaded',
+      );
+      reactOnRailsPageLoaded();
     }
   });
 }

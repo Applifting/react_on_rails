@@ -5,8 +5,11 @@
 # 2. Keep all #{some_var} fully to the left so that all indentation is done evenly in that var
 require "react_on_rails/prerender_error"
 require "addressable/uri"
+require "react_on_rails/utils"
 
 module ReactOnRailsHelper
+  include ReactOnRails::Utils::Required
+
   # The env_javascript_include_tag and env_stylesheet_link_tag support the usage of a webpack
   # dev server for providing the JS and CSS assets during development mode. See
   # https://github.com/shakacode/react-webpack-rails-tutorial/ for a working example.
@@ -255,8 +258,12 @@ module ReactOnRailsHelper
 
   # Returns Array [0]: html, [1]: script to console log
   # NOTE, these are NOT html_safe!
-  def server_rendered_react_component_html(props, react_component_name, dom_id,
-                                           prerender:, trace:, raise_on_prerender_error:)
+  def server_rendered_react_component_html(
+    props, react_component_name, dom_id,
+    prerender: required("prerender"),
+    trace: required("trace"),
+    raise_on_prerender_error: required("raise_on_prerender_error")
+  )
     return { "html" => "", "consoleReplayScript" => "" } unless prerender
 
     # On server `location` option is added (`location = request.fullpath`)
@@ -341,29 +348,41 @@ ReactOnRails.setStore('#{store_name}', store);
 
   # This is the definitive list of the default values used for the rails_context, which is the
   # second parameter passed to both component and store generator functions.
-  def rails_context(server_side:)
+  # rubocop:disable Metrics/AbcSize
+  def rails_context(server_side: required("server_side"))
     @rails_context ||= begin
-      # Using Addressable instead of standard URI to better deal with
-      # non-ASCII characters (see https://github.com/shakacode/react_on_rails/pull/405)
-      uri = Addressable::URI.parse(request.original_url)
-      # uri = Addressable::URI.parse("http://foo.com:3000/posts?id=30&limit=5#time=1305298413")
-
       result = {
-        # URL settings
-        href: request.original_url,
-        location: "#{uri.path}#{uri.query.present? ? "?#{uri.query}" : ''}",
-        scheme: uri.scheme, # http
-        host: uri.host, # foo.com
-        port: uri.port,
-        pathname: uri.path, # /posts
-        search: uri.query, # id=30&limit=5
-
+        inMailer: in_mailer?,
         # Locale settings
         i18nLocale: I18n.locale,
-        i18nDefaultLocale: I18n.default_locale,
-        httpAcceptLanguage: request.env["HTTP_ACCEPT_LANGUAGE"]
+        i18nDefaultLocale: I18n.default_locale
       }
+      if defined?(request) && request.present?
+        # Check for encoding of the request's original_url and try to force-encoding the
+        # URLs as UTF-8. This situation can occur in browsers that do not encode the
+        # entire URL as UTF-8 already, mostly on the Windows platform (IE11 and lower).
+        original_url_normalized = request.original_url
+        if original_url_normalized.encoding.to_s == "ASCII-8BIT"
+          original_url_normalized = original_url_normalized.force_encoding("ISO-8859-1").encode("UTF-8")
+        end
 
+        # Using Addressable instead of standard URI to better deal with
+        # non-ASCII characters (see https://github.com/shakacode/react_on_rails/pull/405)
+        uri = Addressable::URI.parse(original_url_normalized)
+        # uri = Addressable::URI.parse("http://foo.com:3000/posts?id=30&limit=5#time=1305298413")
+
+        result.merge!(
+          # URL settings
+          href: uri.to_s,
+          location: "#{uri.path}#{uri.query.present? ? "?#{uri.query}" : ''}",
+          scheme: uri.scheme, # http
+          host: uri.host, # foo.com
+          port: uri.port,
+          pathname: uri.path, # /posts
+          search: uri.query, # id=30&limit=5
+          httpAcceptLanguage: request.env["HTTP_ACCEPT_LANGUAGE"]
+        )
+      end
       if ReactOnRails.configuration.rendering_extension
         custom_context = ReactOnRails.configuration.rendering_extension.custom_context(self)
         result.merge!(custom_context) if custom_context
@@ -387,5 +406,12 @@ ReactOnRails.setStore('#{store_name}', store);
     assets = Array(args[asset_type])
     options = args.delete_if { |key, _value| %i(hot static).include?(key) }
     send(tag_method_name, *assets, options) unless assets.empty?
+  end
+
+  def in_mailer?
+    return false unless defined?(controller)
+    return false unless defined?(ActionMailer::Base)
+
+    controller.is_a?(ActionMailer::Base)
   end
 end

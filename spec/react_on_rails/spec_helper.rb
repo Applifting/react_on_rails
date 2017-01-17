@@ -13,6 +13,7 @@ require "pry-doc"
 
 require "binding_of_caller"
 require "awesome_print"
+require "rspec/retry"
 
 require_relative "./simplecov_helper"
 
@@ -50,6 +51,14 @@ RSpec.configure do |config|
     # ...rather than:
     #     # => "be bigger than 2"
     expectations.include_chain_clauses_in_custom_matcher_descriptions = true
+
+    ### Fix Net::ReadTimeout error on first test
+    # Show retry status in spec process
+    config.verbose_retry = true
+    # Try twice (retry once)
+    config.default_retry_count = 3
+    # Only retry when Selenium raises Net::ReadTimeout
+    # config.exceptions_to_retry = [Net::ReadTimeout]
   end
 
   # rspec-mocks config goes here. You can use an alternate test double
@@ -67,8 +76,8 @@ RSpec.configure do |config|
   #   # to individual examples or groups you care about by tagging them with
   #   # `:focus` metadata. When nothing is tagged with `:focus`, all examples
   #   # get run.
-  #   config.filter_run :focus
-  #   config.run_all_when_everything_filtered = true
+  config.filter_run :focus
+  config.run_all_when_everything_filtered = true
   #
   #   # Allows RSpec to persist some state between runs in order to support
   #   # the `--only-failures` and `--next-failure` CLI options. We recommend

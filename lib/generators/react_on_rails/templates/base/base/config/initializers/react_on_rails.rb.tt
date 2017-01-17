@@ -52,12 +52,18 @@ ReactOnRails.configure do |config|
 
   # Server rendering only (not for render_component helper)
   # You can configure your pool of JS virtual machines and specify where it should load code:
-  # On MRI, use `therubyracer` for the best performance
+  # On MRI, use `mini_racer` for the best performance
   # (see [discussion](https://github.com/reactjs/react-rails/pull/290))
   # On MRI, you'll get a deadlock with `pool_size` > 1
   # If you're using JRuby, you can increase `pool_size` to have real multi-threaded rendering.
   config.server_renderer_pool_size = 1 # increase if you're on JRuby
   config.server_renderer_timeout = 20 # seconds
+
+  ################################################################################
+  # I18N OPTIONS
+  ################################################################################
+  # Replace the following line to the location where you keep translation.js & default.js.
+  config.i18n_dir = Rails.root.join("client", "app", "libs", "i18n")
 
   ################################################################################
   # MISCELLANEOUS OPTIONS
@@ -67,11 +73,15 @@ ReactOnRails.configure do |config|
   config.skip_display_none = false
 
   # The server render method - either ExecJS or NodeJS
+  <%- if options.node? -%>
+  config.server_render_method = "NodeJS"
+  <%- else -%>
   config.server_render_method = "ExecJS"
+  <%- end -%>
 
   # Client js uses assets not digested by rails.
-  # For any asset matching this regex, non-digested symlink will be created
+  # For any asset matching this regex, non-digested symlink will be created (what webpack's css wants)
   # To disable symlinks set this parameter to nil.
-  config.symlink_non_digested_assets_regex = /\.(png|jpg|jpeg|gif|tiff|woff|ttf|eot|svg)/
+  config.symlink_non_digested_assets_regex = /\.(png|jpg|jpeg|gif|tiff|woff|ttf|eot|svg|map)/
 
 end

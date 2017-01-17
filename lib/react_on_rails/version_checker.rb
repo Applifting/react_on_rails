@@ -3,6 +3,7 @@ module ReactOnRails
   # against each otherat runtime.
   class VersionChecker
     attr_reader :node_package_version, :logger
+    MAJOR_VERSION_REGEX = /(\d+)\.?/
 
     def self.build
       new(NodePackageVersion.build, Rails.logger)
@@ -38,7 +39,7 @@ module ReactOnRails
     end
 
     def gem_major_version
-      gem_version.match(/(\d+)\./)[1]
+      gem_version.match(MAJOR_VERSION_REGEX)[1]
     end
 
     class NodePackageVersion
@@ -57,7 +58,13 @@ module ReactOnRails
       end
 
       def raw
-        JSON.parse(package_json_contents)["dependencies"]["react-on-rails"]
+        parsed_package_contents = JSON.parse(package_json_contents)
+        if parsed_package_contents.key?("dependencies") &&
+           parsed_package_contents["dependencies"].key?("react-on-rails")
+          parsed_package_contents["dependencies"]["react-on-rails"]
+        else
+          raise "no 'react-on-rails' entry in package.json dependencies"
+        end
       end
 
       def relative_path?
@@ -66,7 +73,7 @@ module ReactOnRails
 
       def major
         return if relative_path?
-        raw.match(/(\d+)\./)[1]
+        raw.match(MAJOR_VERSION_REGEX)[1]
       end
 
       private
